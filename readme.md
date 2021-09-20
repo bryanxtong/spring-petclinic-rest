@@ -73,7 +73,7 @@
 40. replace resteasy-jsonb to resteasy-jackson 
 41. Added Metrics annotations to Services methods 
 42. Upgraded to Quarkus 1.7.0.Final
-43. Commented out wrong import.sql sentences
+43. Commented out wrong import-pg.sql sentences
 44. Added Cache support
 45. Improved tests
 

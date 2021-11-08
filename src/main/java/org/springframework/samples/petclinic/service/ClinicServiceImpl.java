@@ -75,16 +75,16 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-    @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+    @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 	public Collection<Pet> findAllPets()  {
 		return petRepository.listAll();
 	}
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deletePet(Pet pet)  {
 		petRepository.delete(pet);
@@ -92,8 +92,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Visit findVisitById(Integer visitId)  {
 		Visit visit = null;
@@ -108,8 +108,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Visit> findAllVisits()  {
 		return visitRepository.listAll();
@@ -117,8 +117,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deleteVisit(Visit visit)  {
 		visitRepository.delete(visit);
@@ -126,8 +126,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Vet findVetById(Integer id)  {
 		Vet vet = null;
@@ -142,8 +142,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Vet> findAllVets()  {
 		return vetRepository.listAll();
@@ -151,8 +151,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void saveVet(Vet vet)  {
 		vetRepository.save(vet);
@@ -160,8 +160,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deleteVet(Vet vet)  {
 		vetRepository.delete(vet);
@@ -169,8 +169,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Owner> findAllOwners()  {
 		return ownerRepository.listAll();
@@ -178,8 +178,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deleteOwner(Owner owner)  {
 		ownerRepository.delete(owner);
@@ -187,8 +187,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public PetType findPetTypeById(Integer petTypeId) {
 		PetType petType = null;
@@ -203,8 +203,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<PetType> findAllPetTypes()  {
 		return petTypeRepository.listAll();
@@ -212,8 +212,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void savePetType(PetType petType)  {
 		petTypeRepository.save(petType);
@@ -221,8 +221,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deletePetType(PetType petType)  {
 		petTypeRepository.delete(petType);
@@ -230,8 +230,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Specialty findSpecialtyById(Integer specialtyId) {
 		Specialty specialty = null;
@@ -246,8 +246,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Specialty> findAllSpecialties()  {
 		return specialtyRepository.listAll();
@@ -255,8 +255,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void saveSpecialty(Specialty specialty)  {
 		specialtyRepository.save(specialty);
@@ -264,8 +264,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void deleteSpecialty(Specialty specialty)  {
 		specialtyRepository.deleteWithVetAssign(specialty);
@@ -273,8 +273,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<PetType> findPetTypes()  {
 		return petRepository.findPetTypes();
@@ -282,8 +282,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Owner findOwnerById(Integer id)  {
 		Owner owner = null;
@@ -298,8 +298,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Pet findPetById(Integer id)  {
 		Pet pet = null;
@@ -314,8 +314,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void savePet(Pet pet) {
 		petRepository.persist(pet);
@@ -324,8 +324,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public void saveVisit(Visit visit)  {
 		visitRepository.save(visit);
@@ -335,8 +335,8 @@ public class ClinicServiceImpl implements ClinicService {
 	//@Override
 	@Transactional
     @CacheResult(cacheName = "vets")
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public List<Owner> findOwners()  {
 		return ownerRepository.listAll();
@@ -344,8 +344,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-    @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+    @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 	public void saveOwner(Owner owner)  {
 		ownerRepository.save(owner);
 
@@ -353,8 +353,8 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Owner> findOwnerByLastName(String lastName)  {
 		return ownerRepository.findByLastName(lastName);
@@ -362,16 +362,16 @@ public class ClinicServiceImpl implements ClinicService {
 
 	@Override
 	@Transactional
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Visit> findVisitsByPetId(Integer petId) {
 		return visitRepository.findByPetId(petId);
 	}
 
 	@Override
-        @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
 	public Collection<Vet> findVets() {
 		// TODO Auto-generated method stub

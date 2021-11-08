@@ -19,8 +19,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    @Counted(name="accessDB",reusable = true)
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS, reusable = true)
+    @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
     public void saveUser(User user) throws Exception {
 

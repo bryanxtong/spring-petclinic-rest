@@ -112,6 +112,8 @@ INSERT INTO vets VALUES (6, 'Sharon', 'Jenkins') ON CONFLICT DO NOTHING;
 INSERT INTO specialties VALUES (1, 'radiology') ON CONFLICT DO NOTHING;
 INSERT INTO specialties VALUES (2, 'surgery') ON CONFLICT DO NOTHING;
 INSERT INTO specialties VALUES (3, 'dentistry') ON CONFLICT DO NOTHING;
+INSERT INTO specialties VALUES (4, 'therapist') ON CONFLICT DO NOTHING;
+INSERT INTO specialties VALUES (5, 'psychology') ON CONFLICT DO NOTHING;
 
 INSERT INTO vet_specialties VALUES (2, 1) ON CONFLICT DO NOTHING;
 INSERT INTO vet_specialties VALUES (3, 2) ON CONFLICT DO NOTHING;
@@ -137,14 +139,14 @@ INSERT INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '
 INSERT INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435') ON CONFLICT DO NOTHING;
 INSERT INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487') ON CONFLICT DO NOTHING;
 
-INSERT INTO pets VALUES (1, 'Leo', '2000-09-07', 1, 1) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (2, 'Basil', '2002-08-06', 6, 2) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (3, 'Rosy', '2001-04-17', 2, 3) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (4, 'Jewel', '2000-03-07', 2, 3) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (5, 'Iggy', '2000-11-30', 3, 4) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (6, 'George', '2000-01-20', 4, 5) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (7, 'Samantha', '1995-09-04', 1, 6) ON CONFLICT DO NOTHING;
-INSERT INTO pets VALUES (8, 'Max', '1995-09-04', 1, 6) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (1, 'Leo', '2000-09-07', 1, 1) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (2, 'Basil', '2002-08-06', 6, 2) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (3, 'Rosy', '2001-04-17', 2, 3) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (4, 'Jewel', '2000-03-07', 2, 3) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (5, 'Iggy', '2000-11-30', 3, 4) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (6, 'George', '2000-01-20', 4, 5) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (7, 'Samantha', '1995-09-04', 1, 6) ON CONFLICT DO NOTHING;
+INSERT INTO pets (id, name, birth_date, type_id, owner_id) VALUES (8, 'Max', '1995-09-04', 1, 6) ON CONFLICT DO NOTHING;
 
 -- INSERT INTO pets VALUES (9, 'Lucky', '1999-08-06', 5, 7) ON CONFLICT DO NOTHING;
 -- INSERT INTO pets VALUES (10, 'Mulligan', '1997-02-24', 2, 8) ON CONFLICT DO NOTHING;

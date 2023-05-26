@@ -7,9 +7,8 @@
   <version>2.1.5</version>
   <description>REST version of the Spring Petclinic sample application migrated to Quarkus</description>
   <properties>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <quarkus.version>3.0.1.Final</quarkus.version>
+      <maven.compiler.release>17</maven.compiler.release>
+    <quarkus.version>3.0.4.Final</quarkus.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -115,7 +114,7 @@
       </plugin>
       <plugin>
     <artifactId>maven-surefire-plugin</artifactId>
-    <version>2.22.2</version>
+    <version>3.0.0</version>
     <configuration>
        <systemProperties>
           <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>

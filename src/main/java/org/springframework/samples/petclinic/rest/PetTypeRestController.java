@@ -16,16 +16,10 @@
 
 package org.springframework.samples.petclinic.rest;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
-import jakarta.validation.Validator;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -49,68 +43,57 @@ public class PetTypeRestController {
 	@Inject
 	ClinicService clinicService;
 
-	@RolesAllowed( {Roles.OWNER_ADMIN, Roles.VET_ADMIN })
+	//@RolesAllowed( {Roles.OWNER_ADMIN, Roles.VET_ADMIN })
 	@GET
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getAllPetTypes(){
-		Collection<PetType> petTypes = new ArrayList<PetType>();
-		petTypes.addAll(this.clinicService.findAllPetTypes());
-		if (petTypes.isEmpty()){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok(petTypes).build();
+	public Uni<Response> getAllPetTypes(){
+        return this.clinicService.findAllPetTypes().onItem().ifNotNull().transform(petTypes -> Response.ok(petTypes).build())
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed( {Roles.OWNER_ADMIN, Roles.VET_ADMIN })
+	//@RolesAllowed( {Roles.OWNER_ADMIN, Roles.VET_ADMIN })
 	@GET
 	@Path("/{petTypeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getPetType(@PathParam("petTypeId") int petTypeId){
-		PetType petType = this.clinicService.findPetTypeById(petTypeId);
-		if(petType == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok(petType).build();
+	public Uni<Response> getPetType(@PathParam("petTypeId") int petTypeId){
+        return this.clinicService.findPetTypeById(petTypeId).onItem().ifNotNull()
+            .transformToUni(petType -> Uni.createFrom().item(Response.ok(petType).build()))
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-	public Response addPetType(@Valid PetType petType) {
-		this.clinicService.savePetType(petType);
-		return Response.status(Status.CREATED).entity(petType).build();
+	public Uni<Response> addPetType(@Valid PetType petType) {
+        return this.clinicService.savePetType(petType).replaceWith(Response.status(Status.CREATED).entity(petType).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@PUT
 	@Path("/{petTypeId}")
 	@Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-	public Response updatePetType(@PathParam("petTypeId") int petTypeId, @Valid PetType petType) {
-		PetType currentPetType = this.clinicService.findPetTypeById(petTypeId);
-		if(currentPetType == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		currentPetType.setName(petType.getName());
-		this.clinicService.savePetType(currentPetType);
-		return Response.noContent().entity(currentPetType).build();
+	public Uni<Response> updatePetType(@PathParam("petTypeId") int petTypeId, @Valid PetType petType) {
+        return this.clinicService.findPetTypeById(petTypeId)
+            .onItem().ifNotNull().transformToUni(currentPetType -> {
+            currentPetType.setName(petType.getName());
+            return clinicService.savePetType(currentPetType)
+                .onItem().transform(en->Response.noContent().entity(currentPetType).build());
+        }).onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@DELETE
 	@Path("/{petTypeId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public Response deletePetType(@PathParam("petTypeId") int petTypeId){
-		PetType petType = this.clinicService.findPetTypeById(petTypeId);
-		if(petType == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		this.clinicService.deletePetType(petType);
-		return Response.noContent().build();
+	@WithTransaction
+	public Uni<Response> deletePetType(@PathParam("petTypeId") int petTypeId){
+        return this.clinicService.findPetTypeById(petTypeId)
+            .onItem().ifNotNull().transformToUni(currentPetType -> clinicService.deletePetType(currentPetType).onItem().transform(en-> Response.noContent().build()))
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
 }

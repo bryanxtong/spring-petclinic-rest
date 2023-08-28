@@ -18,10 +18,10 @@ package org.springframework.samples.petclinic.service;
 import java.util.Collection;
 import java.util.List;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
-
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Counted;
 import org.eclipse.microprofile.metrics.annotation.Timed;
@@ -74,298 +74,252 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
 	@Override
-	@Transactional
+    @WithTransaction
     @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-	public Collection<Pet> findAllPets()  {
+	public Uni<List<Pet>> findAllPets()  {
 		return petRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public void deletePet(Pet pet)  {
-		petRepository.delete(pet);
+	public Uni<Void> deletePet(Pet pet)  {
+		return petRepository.deleteObject(pet);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Visit findVisitById(Integer visitId)  {
-		Visit visit = null;
-		try {
-			visit = visitRepository.findById(visitId);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return visit;
-	}
+	public Uni<Visit> findVisitById(Integer visitId)  {
+        return visitRepository.findById(visitId);
+    }
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Collection<Visit> findAllVisits()  {
+	public Uni<List<Visit>> findAllVisits()  {
 		return visitRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void deleteVisit(Visit visit)  {
-		visitRepository.delete(visit);
+	public Uni<Void> deleteVisit(Visit visit)  {
+        //currently based on hibernate mapping model, error is  Unable to perform un-delete for instance org.springframework.samples.petclinic.model.Visit
+		return visitRepository.delete(visit);
+        //return visitRepository.deleteObject(visit);
+	}
+
+    @Override
+	@WithTransaction
+        @Counted(name="accessDB")
+    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
+
+	public Uni<Vet> findVetById(Integer id)  {
+        return vetRepository.findById(id);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Vet findVetById(Integer id)  {
-		Vet vet = null;
-		try {
-			vet = vetRepository.findById(id);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return vet;
-	}
-
-	@Override
-	@Transactional
-        @Counted(name="accessDB")
-    @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Collection<Vet> findAllVets()  {
+	public Uni<List<Vet>> findAllVets()  {
 		return vetRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void saveVet(Vet vet)  {
-		vetRepository.save(vet);
+	public Uni<Void> saveVet(Vet vet)  {
+		return vetRepository.save(vet);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void deleteVet(Vet vet)  {
-		vetRepository.delete(vet);
+	public Uni<Void> deleteVet(Vet vet)  {
+		return vetRepository.delete(vet);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Collection<Owner> findAllOwners()  {
+	public Uni<List<Owner>> findAllOwners()  {
 		return ownerRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void deleteOwner(Owner owner)  {
-		ownerRepository.delete(owner);
+	public Uni<Void> deleteOwner(Owner owner)  {
+		return ownerRepository.delete(owner);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public PetType findPetTypeById(Integer petTypeId) {
-		PetType petType = null;
-		try {
-			petType = petTypeRepository.findById(petTypeId);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return petType;
+	public Uni<PetType> findPetTypeById(Integer petTypeId) {
+        return petTypeRepository.findById(petTypeId);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Collection<PetType> findAllPetTypes()  {
+	public Uni<List<PetType>> findAllPetTypes()  {
 		return petTypeRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void savePetType(PetType petType)  {
-		petTypeRepository.save(petType);
+	public Uni<Void> savePetType(PetType petType)  {
+		return petTypeRepository.save(petType);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void deletePetType(PetType petType)  {
-		petTypeRepository.delete(petType);
+	public Uni<Void> deletePetType(PetType petType)  {
+		return petTypeRepository.deleteObject(petType);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Specialty findSpecialtyById(Integer specialtyId) {
-		Specialty specialty = null;
-		try {
-			specialty = specialtyRepository.findById(specialtyId);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return specialty;
+	public Uni<Specialty> findSpecialtyById(Integer specialtyId) {
+        return specialtyRepository.findById(specialtyId);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Collection<Specialty> findAllSpecialties()  {
+	public Uni<List<Specialty>> findAllSpecialties()  {
 		return specialtyRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void saveSpecialty(Specialty specialty)  {
-		specialtyRepository.save(specialty);
+	public Uni<Void> saveSpecialty(Specialty specialty)  {
+		return specialtyRepository.save(specialty);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void deleteSpecialty(Specialty specialty)  {
-		specialtyRepository.deleteWithVetAssign(specialty);
+	public Uni<Void> deleteSpecialty(Specialty specialty)  {
+		return specialtyRepository.deleteWithVetAssign(specialty);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Collection<PetType> findPetTypes()  {
-		return petRepository.findPetTypes();
+	public Uni<List<PetType>> findPetTypes()  {
+		return petTypeRepository.findPetTypes();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Owner findOwnerById(Integer id)  {
-		Owner owner = null;
-		try {
-			owner = ownerRepository.findByIdLeftJoin(id);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return owner;
+	public Uni<Owner> findOwnerById(Integer id)  {
+        return ownerRepository.findByIdLeftJoin(id);
 	}
 
 	@Override
-	@Transactional
-        @Counted(name="accessDB")
+	@WithTransaction
+    @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public Pet findPetById(Integer id)  {
-		Pet pet = null;
-		try {
-			pet = petRepository.findById(id);
-		} catch (Exception e) {
-		// just ignore not found exceptions for Jdbc/Jpa realization
-			return null;
-		}
-		return pet;
+	public Uni<Pet> findPetById(Integer id)  {
+        return petRepository.findById(id);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-
-	public void savePet(Pet pet) {
-		petRepository.persist(pet);
+	public Uni<Void> savePet(Pet pet) {
+        //return petRepository.persist(pet).replaceWithVoid();
+		return petRepository.save(pet);
 
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public void saveVisit(Visit visit)  {
-		visitRepository.save(visit);
+	public Uni<Void> saveVisit(Visit visit)  {
+		return visitRepository.save(visit);
 
 	}
 
 	//@Override
-	@Transactional
+	@WithTransaction
     @CacheResult(cacheName = "vets")
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public List<Owner> findOwners()  {
+	public Uni<List<Owner>> findOwners()  {
 		return ownerRepository.listAll();
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
     @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
-	public void saveOwner(Owner owner)  {
-		ownerRepository.save(owner);
+	public Uni<Void> saveOwner(Owner owner)  {
+		return ownerRepository.save(owner);
 
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Collection<Owner> findOwnerByLastName(String lastName)  {
+	public Uni<List<Owner>> findOwnerByLastName(String lastName)  {
 		return ownerRepository.findByLastName(lastName);
 	}
 
 	@Override
-	@Transactional
+	@WithTransaction
         @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-	public Collection<Visit> findVisitsByPetId(Integer petId) {
+	public Uni<List<Visit>> findVisitsByPetId(Integer petId) {
 		return visitRepository.findByPetId(petId);
 	}
 

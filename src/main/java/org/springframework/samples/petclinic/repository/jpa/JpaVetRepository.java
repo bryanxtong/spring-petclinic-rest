@@ -15,16 +15,12 @@
  */
 package org.springframework.samples.petclinic.repository.jpa;
 
+import io.quarkus.hibernate.reactive.panache.PanacheRepository;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.springframework.samples.petclinic.model.Vet;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 
 /**
  * JPA implementation of the {@link JpaVetRepository} interface.
@@ -36,17 +32,16 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
  * @author Vitaliy Fedoriv
  */
 @ApplicationScoped
-public class JpaVetRepository implements PanacheRepositoryBase<Vet,Integer> {
+public class JpaVetRepository implements PanacheRepositoryBase<Vet,Integer>, PanacheRepositoryCustom<Vet> {
 
-    @Inject
-    EntityManager em;
-
-	public void save(Vet vet)  {
-        if (vet.getId() == null) {
-            persist(vet);
-        } else {
-            this.em.merge(vet);
-        }
+	public Uni<Void> save(Vet vet)  {
+        return Uni.createFrom().item(vet).flatMap(vet1 -> {
+            if (vet1.getId() == null) {
+                return persist(vet1).replaceWithVoid();
+            } else {
+                return merge(vet1).replaceWithVoid();
+            }
+        });
 	}
 
 }

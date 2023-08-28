@@ -1,3 +1,12 @@
+Problems are as below
+
+1. petType cannot be deleted
+2. Visit cannot be deleted
+3. pets cannot be deleted
+4. security is not implemented as It is using the jdbc and maybe two datasources needed
+5. tests needs to be added
+
+
 # REST version of Spring PetClinic Sample Application migrated to Quarkus
 
 # Migration of Spring Pet Clinic to Quarkus

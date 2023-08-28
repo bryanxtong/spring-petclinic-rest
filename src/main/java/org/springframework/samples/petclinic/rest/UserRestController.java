@@ -19,6 +19,7 @@ package org.springframework.samples.petclinic.rest;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
@@ -45,13 +46,24 @@ public class UserRestController {
     @Inject
     Validator validator;
 
-	@RolesAllowed(Roles.ADMIN)
+    //@RolesAllowed(Roles.ADMIN)
     @POST
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response addOwner( @Valid User user) throws Exception {
-        userService.saveUser(user);
-        return Response.status(Status.CREATED).entity(user).build();
+    public Uni<Response> addOwner(@Valid User user) throws Exception {
+        /**
+         * {
+         *   "username": "bryan",
+         *   "password": "bryan",
+         *   "enabled": true,
+         *   "roles": [
+         *     {
+         *       "name": "ROLE_OWNER_ADMIN"
+         *     }
+         *   ]
+         * }
+         */
+        return userService.saveUser(user).replaceWith(Response.status(Status.CREATED).entity(user).build());
     }
 }

@@ -17,18 +17,13 @@ package org.springframework.samples.petclinic.repository.jpa;
 
 import java.util.List;
 
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Parameters;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.springframework.samples.petclinic.model.Visit;
-
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
-
 /**
  * JPA implementation of the ClinicService interface using EntityManager.
  * <p/>
@@ -41,24 +36,33 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
  * @author Vitaliy Fedoriv
  */
 @ApplicationScoped
-public class JpaVisitRepository implements PanacheRepositoryBase<Visit,Integer> {
+public class JpaVisitRepository implements PanacheRepositoryBase<Visit,Integer>, PanacheRepositoryCustom<Visit> {
 
-    @Inject
-    EntityManager em;
-
-    public void save(Visit visit) {
-        if (visit.getId() == null) {
-            persist(visit);
-        } else {
-            this.em.merge(visit);
-        }
+    public Uni<Void> save(Visit visit) {
+        return Uni.createFrom().item(visit).flatMap(visit1 -> {
+            if (visit1.getId() == null) {
+                return persist(visit1).replaceWithVoid();
+            } else {
+                return merge(visit1).replaceWithVoid();
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
-    public List<Visit> findByPetId(long petId) {
-        Query query = this.em.createQuery("SELECT v FROM Visit v where v.pet.id= :id");
-        query.setParameter("id", petId);
-        return query.getResultList();
+    public Uni<List<Visit>> findByPetId(long petId) {
+        PanacheQuery<Visit> id = this.find("SELECT v FROM Visit v where v.pet.id= :id", Parameters.with("id", petId));
+        return id.list();
     }
 
+    /**
+     * Based on current hibernate model, visits deleting has problems
+     * an assertion failure occurred (this may indicate a bug in Hibernate, but is more likely due to unsafe use of the session): org.hibernate.AssertionFailure: Unable to perform un-delete for instance org.springframework.samples.petclinic.model.Visit
+     * so use JQL instead
+     * @param visit
+     * @return
+     */
+    public Uni<Void> deleteObject(Visit visit) {
+        Uni<Long> id = this.delete("DELETE FROM Visit visit WHERE id=:id", Parameters.with("id", visit.getId()));
+        return id.replaceWithVoid();
+    }
 }

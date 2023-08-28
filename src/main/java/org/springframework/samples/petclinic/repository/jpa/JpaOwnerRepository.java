@@ -15,19 +15,15 @@
  */
 package org.springframework.samples.petclinic.repository.jpa;
 
-import java.util.Collection;
-
+import java.util.List;
+import io.quarkus.hibernate.reactive.panache.PanacheQuery;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Parameters;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.springframework.samples.petclinic.model.Owner;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 
 /**
  * JPA implementation of the {@link JpaOwnerRepository} interface.
@@ -40,10 +36,7 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
  */
 
 @ApplicationScoped
-public class JpaOwnerRepository implements PanacheRepositoryBase<Owner, Integer> {
-
-    @Inject
-    EntityManager em;
+public class JpaOwnerRepository implements PanacheRepositoryBase<Owner, Integer>, PanacheRepositoryCustom<Owner> {
 
     /**
      * Important: in the current version of this method, we load Owners with all
@@ -54,38 +47,43 @@ public class JpaOwnerRepository implements PanacheRepositoryBase<Owner, Integer>
      * and using {@link OpenSessionInViewFilter}
      */
     @SuppressWarnings("unchecked")
-    public Collection<Owner> findByLastName(String lastName) {
+    public Uni<List<Owner>> findByLastName(String lastName) {
         // using 'join fetch' because a single query should load both owners and pets
         // using 'left join fetch' because it might happen that an owner does not have
         // pets yet
-        Query query = this.em.createQuery(
-                "SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.lastName LIKE :lastName");
-        query.setParameter("lastName", lastName + "%");
-        return query.getResultList();
+        PanacheQuery<Owner> ownerPanacheQuery = this.find(
+            "SELECT DISTINCT owner FROM Owner owner left join fetch owner.pets WHERE owner.lastName LIKE :lastName",
+            Parameters.with("lastName", lastName + "%"));
+        return ownerPanacheQuery.list();
     }
 
-    public Owner findByIdLeftJoin(Integer id) {
+    public Uni<Owner> findByIdLeftJoin(Integer id) {
         // using 'join fetch' because a single query should load both owners and pets
         // using 'left join fetch' because it might happen that an owner does not have
         // pets yet
-        Query query = this.em
-                .createQuery("SELECT owner FROM Owner owner left join fetch owner.pets WHERE owner.id =:id");
-        query.setParameter("id", id);
-        return (Owner) query.getSingleResult();
+        PanacheQuery<Owner> ownerPanacheQuery = this.find("SELECT owner FROM Owner owner left join fetch owner.pets WHERE owner.id =:id",
+            Parameters.with("id", id));
+        return ownerPanacheQuery.firstResult();
     }
 
-    public void save(Owner owner) {
-        if (owner.getId() == null) {
-            persist(owner);
-        } else {
-            this.em.merge(owner);
-        }
+    public Uni<Void> save(Owner owner) {
+        //the origial logic is if the id is null insert otherwise update
+        return Uni.createFrom().item(owner.getId())
+            .onItem().ifNotNull().transformToUni(integer -> {
+                Uni<Owner> merge = merge(owner);
+                return merge.onItem().transform(i-> owner);
+            }).onItem().ifNull().switchTo(() -> {
+                Uni<Owner> persist = persist(owner);
+                return persist;
+            }).replaceWithVoid();
+       /* return Uni.createFrom().item(owner).log().flatMap(o -> {
+            if (o.getId() == null) {
+                return persist(o).replaceWithVoid();
+            } else {
+                return this.merge(o).replaceWithVoid();
+            }
+        });*/
 
-    }
-
-    @Override
-    public void delete(Owner owner) {
-        this.em.remove(this.em.contains(owner) ? owner : this.em.merge(owner));
     }
 
 }

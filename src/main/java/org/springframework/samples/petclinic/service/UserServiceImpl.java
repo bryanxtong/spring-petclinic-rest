@@ -1,5 +1,7 @@
 package org.springframework.samples.petclinic.service;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,11 +20,11 @@ public class UserServiceImpl implements UserService {
     JpaUserRepository userRepository;
 
     @Override
-    @Transactional
+    @WithTransaction
     @Counted(name="accessDB")
     @Timed(name="processDB", unit= MetricUnits.MILLISECONDS)
 
-    public void saveUser(User user) throws Exception {
+    public Uni<Void> saveUser(User user) throws Exception {
 
         if(user.getRoles() == null || user.getRoles().isEmpty()) {
             throw new Exception("User must have at least a role set!");
@@ -38,6 +40,6 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 }

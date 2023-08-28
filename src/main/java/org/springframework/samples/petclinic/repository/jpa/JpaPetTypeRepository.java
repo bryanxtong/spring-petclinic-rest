@@ -17,54 +17,55 @@
 package org.springframework.samples.petclinic.repository.jpa;
 
 import java.util.List;
-
+import java.util.function.Function;
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Parameters;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
-import org.springframework.samples.petclinic.model.Visit;
-
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 
 /**
  * @author Vitaliy Fedoriv
  *
  */
 @ApplicationScoped
-public class JpaPetTypeRepository implements PanacheRepositoryBase<PetType,Integer> {
+public class JpaPetTypeRepository implements PanacheRepositoryBase<PetType,Integer>, PanacheRepositoryCustom<PetType> {
 
-    @Inject
-    EntityManager em;
+    @SuppressWarnings("unchecked")
+    public Uni<List<PetType>> findPetTypes() {
+        return this.find("SELECT ptype FROM PetType ptype ORDER BY ptype.name").list();
+    }
 
-	public void save(PetType petType)  {
-		if (petType.getId() == null) {
-            persist(petType);
-        } else {
-            this.em.merge(petType);
-        }
-
+	public Uni<Void> save(PetType petType)  {
+        return Uni.createFrom().item(petType).flatMap(petType1 -> {
+            if (petType1.getId() == null) {
+                return persist(petType1).replaceWithVoid();
+            } else {
+                return merge(petType1).replaceWithVoid();
+            }
+        });
 	}
 
+    /**
+     * The original implementation deletes the pettypes as well as its connected pets and pets visits
+     * @param petType
+     * @return
+     */
 	@SuppressWarnings("unchecked")
-	@Override
-	public void delete(PetType petType)  {
-		this.em.remove(this.em.contains(petType) ? petType : this.em.merge(petType));
-		Integer petTypeId = petType.getId();
-
-		List<Pet> pets = this.em.createQuery("SELECT pet FROM Pet pet WHERE type_id=" + petTypeId).getResultList();
-		for (Pet pet : pets){
-			List<Visit> visits = pet.getVisits();
-			for (Visit visit : visits){
-				this.em.createQuery("DELETE FROM Visit visit WHERE id=" + visit.getId()).executeUpdate();
-			}
-			this.em.createQuery("DELETE FROM Pet pet WHERE id=" + pet.getId()).executeUpdate();
-		}
-		this.em.createQuery("DELETE FROM PetType pettype WHERE id=" + petTypeId).executeUpdate();
+	public Uni<Void> deleteObject(PetType petType)  {
+		Uni<? extends List<?>> petTypes = this.findCustom(Pet.class, "SELECT pet FROM Pet pet WHERE type.id=:type_id", Parameters.with("type_id", petType.getId()));
+        return petTypes.flatMap(new Function<List<?>, Uni<?>>() {
+            @Override
+            public Uni<?> apply(List<?> objects) {
+                return removeAll(objects.toArray(new Object[0]));
+            }
+        }).flatMap(new Function<Object, Uni<?>>() {
+            @Override
+            public Uni<?> apply(Object o) {
+                return delete(petType);
+            }
+        }).replaceWithVoid();
 	}
 
 }

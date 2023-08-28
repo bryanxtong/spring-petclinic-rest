@@ -17,11 +17,14 @@ package org.springframework.samples.petclinic.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
+import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
-import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
@@ -54,73 +57,63 @@ public class VetRestController {
 	@Inject
 	ClinicService clinicService;
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@GET
 	@Path("/")
 	@Produces ( MediaType.APPLICATION_JSON)
-	public Response getAllVets(){
-		Collection<Vet> vets = new ArrayList<Vet>();
-		vets.addAll(this.clinicService.findAllVets());
-		if (vets.isEmpty()){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok(vets).build();
+	public Uni<Response> getAllVets(){
+        return this.clinicService.findAllVets()
+            .onItem().ifNotNull().transform(vets -> Response.ok(vets).build())
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@GET
 	@Path("/{vetId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getVet(@PathParam("vetId") int vetId){
-		Vet vet = this.clinicService.findVetById(vetId);
-		if(vet == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		return Response.ok(vet).build();
+	public Uni<Response> getVet(@PathParam("vetId") int vetId){
+        return this.clinicService.findVetById(vetId)
+            .onItem().ifNotNull().transform(vet -> Response.ok(vet).build())
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@POST
 	@Path("/")
 	@Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-	public Response addVet(@Valid Vet vet) {
-		this.clinicService.saveVet(vet);
-		return Response.status(Status.CREATED).entity(vet).build();
+	public Uni<Response> addVet(@Valid Vet vet) {
+        return this.clinicService.saveVet(vet).replaceWith(Response.status(Status.CREATED).entity(vet).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@PUT
 	@Path("/{vetId}")
 	@Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-	public Response updateVet(@PathParam("vetId") int vetId, @Valid Vet vet) {
-		Vet currentVet = this.clinicService.findVetById(vetId);
-		if(currentVet == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		currentVet.setFirstName(vet.getFirstName());
-		currentVet.setLastName(vet.getLastName());
-		currentVet.clearSpecialties();
-		for(Specialty spec : vet.getSpecialties()) {
-			currentVet.addSpecialty(spec);
-		}
-		this.clinicService.saveVet(currentVet);
-		return Response.noContent().entity(currentVet).build();
+	public Uni<Response> updateVet(@PathParam("vetId") int vetId, @Valid Vet vet) {
+        return this.clinicService.findVetById(vetId)
+            .onItem().ifNotNull().transformToUni(currentVet -> {
+                currentVet.setFirstName(vet.getFirstName());
+                currentVet.setLastName(vet.getLastName());
+                currentVet.clearSpecialties();
+                for(Specialty spec : vet.getSpecialties()) {
+                    currentVet.addSpecialty(spec);
+                }
+                return clinicService.saveVet(currentVet).onItem().transform(en-> Response.noContent().entity(currentVet).build());
+            })
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
-	@RolesAllowed(Roles.VET_ADMIN)
+	//@RolesAllowed(Roles.VET_ADMIN)
 	@DELETE
 	@Path("/{vetId}")
 	@Produces(MediaType.APPLICATION_JSON)
-	@Transactional
-	public Response deleteVet(@PathParam("vetId") int vetId){
-		Vet vet = this.clinicService.findVetById(vetId);
-		if(vet == null){
-			return Response.status(Status.NOT_FOUND).build();
-		}
-		this.clinicService.deleteVet(vet);
-		return Response.noContent().build();
+	@WithTransaction
+	public Uni<Response> deleteVet(@PathParam("vetId") int vetId){
+        return this.clinicService.findVetById(vetId)
+            .onItem().ifNotNull().transformToUni(vet -> clinicService.deleteVet(vet).onItem().transform(en-> Response.noContent().build()))
+            .onItem().ifNull().continueWith(Response.status(Status.NOT_FOUND).build());
 	}
 
 

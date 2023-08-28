@@ -15,19 +15,18 @@
  */
 package org.springframework.samples.petclinic.repository.jpa;
 
-import java.util.List;
-
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.quarkus.panache.common.Parameters;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
+import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 
 /**
  * JPA implementation of the {@link JpaPetRepository} interface.
@@ -39,23 +38,24 @@ import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
  * @author Vitaliy Fedoriv
  */
 @ApplicationScoped
-public class JpaPetRepository implements PanacheRepositoryBase<Pet, Integer> {
-	@Inject
-	EntityManager em;
+public class JpaPetRepository implements PanacheRepositoryBase<Pet, Integer>, PanacheRepositoryCustom<Pet> {
 
-	@SuppressWarnings("unchecked")
-    public List<PetType> findPetTypes() {
-        return this.em.createQuery("SELECT ptype FROM PetType ptype ORDER BY ptype.name").getResultList();
+    public Uni<Void> save(Pet pet) {
+        return Uni.createFrom().item(pet).log().flatMap(pet1 -> {
+            if (pet1.getId() == null) {
+                return persist(pet1).replaceWithVoid();
+            } else {
+                return this.merge(pet1).replaceWithVoid();
+            }
+        });
     }
-
-	public void delete(Pet pet) {
-		//this.em.remove(this.em.contains(pet) ? pet : this.em.merge(pet));
-		String petId = pet.getId().toString();
-		this.em.createQuery("DELETE FROM Visit visit WHERE pet_id=" + petId).executeUpdate();
-		this.em.createQuery("DELETE FROM Pet pet WHERE id=" + petId).executeUpdate();
-		if (em.contains(pet)) {
-			em.remove(pet);
-		}
-	}
+    public Uni<Void> deleteObject(Pet pet) {
+       /* return this.findById(pet.getId()).flatMap(pet1 -> {
+            return delete("DELETE FROM Visit visit WHERE visit.pet.id=:pet_id", Parameters.with("pet_id", pet1.getId())).onItem().transform(i -> pet1);
+        }).flatMap(pet2 -> {
+            return delete("DELETE FROM Pet pet WHERE id=:id", Parameters.with("id", pet2.getId()));
+        }).replaceWithVoid();*/
+        return delete(pet).replaceWithVoid();
+    }
 
 }

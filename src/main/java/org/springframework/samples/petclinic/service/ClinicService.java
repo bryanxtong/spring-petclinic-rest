@@ -16,7 +16,9 @@
 package org.springframework.samples.petclinic.service;
 
 import java.util.Collection;
+import java.util.List;
 
+import io.smallrye.mutiny.Uni;
 import org.springframework.samples.petclinic.model.Owner;
 import org.springframework.samples.petclinic.model.Pet;
 import org.springframework.samples.petclinic.model.PetType;
@@ -33,38 +35,38 @@ import org.springframework.samples.petclinic.model.Visit;
  */
 public interface ClinicService {
 
-	Pet findPetById(Integer id) ;
-	Collection<Pet> findAllPets() ;
-	void savePet(Pet pet) ;
-	void deletePet(Pet pet) ;
+    Uni<Pet> findPetById(Integer id) ;
+    Uni<List<Pet>> findAllPets() ;
+    Uni<Void> savePet(Pet pet) ;
+    Uni<Void> deletePet(Pet pet) ;
 
-	Collection<Visit> findVisitsByPetId(Integer petId);
-	Visit findVisitById(Integer visitId) ;
-	Collection<Visit> findAllVisits() ;
-	void saveVisit(Visit visit) ;
-	void deleteVisit(Visit visit) ;
-	
-	Vet findVetById(Integer id) ;
+    Uni<List<Visit>> findVisitsByPetId(Integer petId);
+	Uni<Visit> findVisitById(Integer visitId) ;
+    Uni<List<Visit>> findAllVisits() ;
+	Uni<Void> saveVisit(Visit visit) ;
+    Uni<Void> deleteVisit(Visit visit) ;
+
+    Uni<Vet> findVetById(Integer id) ;
 	Collection<Vet> findVets() ;
-	Collection<Vet> findAllVets() ;
-	void saveVet(Vet vet) ;
-	void deleteVet(Vet vet) ;
-	
-	Owner findOwnerById(Integer id) ;
-	Collection<Owner> findAllOwners() ;
-	void saveOwner(Owner owner) ;
-	void deleteOwner(Owner owner) ;
-	Collection<Owner> findOwnerByLastName(String lastName) ;
+    Uni<List<Vet>> findAllVets() ;
+	Uni<Void> saveVet(Vet vet) ;
+	Uni<Void> deleteVet(Vet vet) ;
 
-	PetType findPetTypeById(Integer petTypeId);
-	Collection<PetType> findAllPetTypes() ;
-	Collection<PetType> findPetTypes() ;
-	void savePetType(PetType petType) ;
-	void deletePetType(PetType petType) ;
-	
-	Specialty findSpecialtyById(Integer specialtyId);
-	Collection<Specialty> findAllSpecialties() ;
-	void saveSpecialty(Specialty specialty) ;
-	void deleteSpecialty(Specialty specialty) ;
+    Uni<Owner> findOwnerById(Integer id) ;
+    Uni<List<Owner>> findAllOwners() ;
+	Uni<Void> saveOwner(Owner owner) ;
+	Uni<Void> deleteOwner(Owner owner) ;
+    Uni<List<Owner>>  findOwnerByLastName(String lastName) ;
+
+    Uni<PetType> findPetTypeById(Integer petTypeId);
+    Uni<List<PetType>> findAllPetTypes() ;
+    Uni<List<PetType>> findPetTypes() ;
+	Uni<Void> savePetType(PetType petType) ;
+	Uni<Void> deletePetType(PetType petType) ;
+
+    Uni<Specialty> findSpecialtyById(Integer specialtyId);
+    Uni<List<Specialty>> findAllSpecialties() ;
+    Uni<Void> saveSpecialty(Specialty specialty) ;
+    Uni<Void> deleteSpecialty(Specialty specialty) ;
 
 }

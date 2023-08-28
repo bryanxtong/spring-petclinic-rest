@@ -16,40 +16,39 @@
 
 package org.springframework.samples.petclinic.repository.jpa;
 
+import io.quarkus.hibernate.reactive.panache.PanacheRepositoryBase;
+import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Counted;
-import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.springframework.samples.petclinic.model.Specialty;
 
-import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
+
 
 /**
  * @author Vitaliy Fedoriv
  *
  */
 @ApplicationScoped
-public class JpaSpecialtyRepository implements PanacheRepositoryBase<Specialty,Integer> {
+public class JpaSpecialtyRepository implements PanacheRepositoryBase<Specialty,Integer>,PanacheRepositoryCustom<Specialty> {
 
-    @Inject
-    EntityManager em;
-
-	public void save(Specialty specialty) {
-		if (specialty.getId() == null) {
-            this.em.persist(specialty);
-        } else {
-            this.em.merge(specialty);
-        }
+	public Uni<Void> save(Specialty specialty) {
+        return Uni.createFrom().item(specialty).flatMap(specialty1 -> {
+            if (specialty1.getId() == null) {
+                return persist(specialty1).replaceWithVoid();
+            } else {
+                return this.merge(specialty1).replaceWithVoid();
+            }
+        });
 	}
 
-	public void deleteWithVetAssign(Specialty specialty) {
-		this.em.remove(this.em.contains(specialty) ? specialty : this.em.merge(specialty));
-		Integer specId = specialty.getId();
-		this.em.createNativeQuery("DELETE FROM vet_specialties WHERE specialty_id=" + specId).executeUpdate();
-		this.em.createQuery("DELETE FROM Specialty specialty WHERE id=" + specId).executeUpdate();
-	}
+	public Uni<Void> deleteWithVetAssign(Specialty specialty) {
+        Integer specId = specialty.getId();
+        return Uni.createFrom().item(specialty).flatMap(specialty1 -> {
+            Uni<Integer> integerUni = createNativeQuery("DELETE FROM vet_specialties WHERE specialty_id=" + specId).executeUpdate();
+            return integerUni.onItem().transform(i-> specialty1);
+        }).flatMap(specialty12 -> delete(specialty12)).replaceWithVoid();
+
+
+
+    }
 
 }
